@@ -39,6 +39,7 @@ def preprocessing(dataset):
 
     dataset.drop(['id','age', 'avg_glucose_level', 'bmi', 'work_type'], axis=1, inplace=True)
 
+    return dataset
 def calculate_entropy(train_data, label, class_list):
     total = len(train_data)
     entropy = 0
