@@ -12,7 +12,7 @@ def read_dataset(file_path):
 
 def preprocessing(dataset):
     dataset=dataset.dropna()
-    dataset=dataset[dataset['age']>5]
+    dataset=dataset[dataset['age']>1]
     dataset=dataset.sort_values(by='age')
     dataset['age_quartile'] = pd.qcut(dataset['age'], q=4, labels=[1, 2, 3, 4])
     dataset=dataset.sort_values(by='avg_glucose_level')
@@ -158,6 +158,52 @@ def calculate_stroke_likelihood_by_age(dataset, age_column, stroke_column):
     plt.show()
 
     return stroke_likelihood
+
+def calculate_stroke_likelihood(dataset, column_name, stroke_column):
+    """
+    Calculates and plots stroke likelihood based on a specified column (e.g., age, gender).
+
+    Parameters:
+        dataset (pd.DataFrame): The dataset containing the specified column and stroke data.
+        column_name (str): The column name to group data by (e.g., 'age', 'gender').
+        stroke_column (str): The column name for stroke (1 = stroke, 0 = no stroke).
+    """
+    if column_name in ['age', 'bmi', 'avg_glucose_level']:
+    # Filter and sort the dataset based on the specific column
+        dataset = dataset[dataset[column_name] > 1]
+        dataset = dataset.sort_values(by=column_name)
+    
+    # Create quartiles for the column
+        quartile_column = f'{column_name}_quartile'
+        dataset[quartile_column] = pd.qcut(dataset[column_name], q=4, labels=[1, 2, 3, 4])
+    
+    # Update column_name to refer to the newly created quartile column
+        column_name = quartile_column
+
+    # Group data by the specified column and calculate stroke likelihood
+    stroke_likelihood = dataset.groupby(column_name)[stroke_column].mean()
+
+    # Print likelihood details
+    print(f"\nStroke Likelihood by {column_name.title()}:")
+    for group, likelihood in stroke_likelihood.items():
+        print(f"{column_name.title()}: {group}, Stroke Likelihood: {likelihood:.4f}")
+
+    # Plot the results
+    print(f"\nPlotting Stroke Likelihood by {column_name.title()}...")
+    plt.figure(figsize=(10, 6))
+    stroke_likelihood.plot(kind='bar', color='skyblue', edgecolor='black')
+    plt.title(f'Stroke Likelihood by {column_name.title()}', fontsize=16)
+    plt.xlabel(column_name.title(), fontsize=14)
+    plt.ylabel('Stroke Likelihood', fontsize=14)
+    plt.xticks(rotation=0 if column_name != 'age_quartile' else 45, fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+    return stroke_likelihood
+
+
 file_path = "healthcare-dataset-stroke-data 2.csv"
 train_data = preprocessing(read_dataset(file_path))
 train_data = preprocessing(read_dataset(file_path))
@@ -171,4 +217,4 @@ print(calculate_entropy(train_data,label, class_list))
 # Run the recursive function
 #find_best_feature_recursive(train_data, label, class_list)
 df=read_dataset(file_path)
-calculate_stroke_likelihood_by_age(df, 'age', 'stroke')
+calculate_stroke_likelihood(df, 'bmi', 'stroke')
