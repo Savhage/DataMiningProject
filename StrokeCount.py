@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load your dataset
-data = pd.read_csv('healthcare-dataset-stroke-data.csv')
+data = pd.read_csv('healthcare-dataset-stroke-data 2.csv')
 
 # Define BMI categories
 def categorize_bmi(bmi):

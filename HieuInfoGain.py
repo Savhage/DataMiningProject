@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load your dataset
-data = pd.read_csv('healthcare-dataset-stroke-data.csv')
+data = pd.read_csv('healthcare-dataset-stroke-data 2.csv')
 
 
 # Function to calculate entropy
