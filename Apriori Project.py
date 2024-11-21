@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from math import log2
+import matplotlib.pyplot as plt
 
 
 def read_dataset(file_path):
@@ -120,8 +121,46 @@ def find_best_feature_recursive(train_data, label, class_list, available_feature
 
         # Recursive call with the updated feature list
         find_best_feature_recursive(subset, label, class_list, updated_available_features, depth + 4, min_info_gain)
+def calculate_stroke_likelihood_by_age(dataset, age_column, stroke_column):
+    """
+    Calculates and plots stroke likelihood by age quartiles.
 
+    Parameters:
+        dataset (pd.DataFrame): The dataset containing age and stroke data.
+        age_column (str): The column name for age.
+        stroke_column (str): The column name for stroke (1 = stroke, 0 = no stroke).
+    """
+    dataset=dataset[dataset['age']>1]
+    # Create age quartiles
+    dataset = dataset.sort_values(by=age_column)
+    dataset['age_quartile'] = pd.qcut(dataset[age_column], q=4, labels=[1, 2, 3, 4])
+
+    # Calculate stroke likelihood for each age quartile
+    stroke_likelihood = dataset.groupby('age_quartile')[stroke_column].mean()
+
+    # Print quartile ranges and stroke likelihood
+    quartile_ranges = pd.qcut(dataset[age_column], q=4).unique()
+    print("\nAge Quartiles:")
+    for i, q_range in enumerate(quartile_ranges, start=1):
+        print(f"Quartile {i}: {q_range}, Stroke Likelihood: {stroke_likelihood.iloc[i-1]:.4f}")
+
+    # Plot the results
+    print("\nPlotting Stroke Likelihood by Age Quartiles...")
+    plt.figure(figsize=(10, 6))
+    stroke_likelihood.plot(kind='bar', color='skyblue', edgecolor='black')
+    plt.title('Stroke Likelihood by Age Quartiles', fontsize=16)
+    plt.xlabel('Age Quartile', fontsize=14)
+    plt.ylabel('Stroke Likelihood', fontsize=14)
+    plt.xticks(ticks=range(len(quartile_ranges)), labels=[f"Q{i}" for i in range(1, 5)], fontsize=12, rotation=0)
+    plt.yticks(fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+    return stroke_likelihood
 file_path = "healthcare-dataset-stroke-data 2.csv"
+train_data = preprocessing(read_dataset(file_path))
+train_data = preprocessing(read_dataset(file_path))
 train_data = preprocessing(read_dataset(file_path))
 
 label = "stroke"  # The label column
@@ -130,4 +169,6 @@ class_list = train_data['stroke'].unique()
 # Generate the decision tree
 print(calculate_entropy(train_data,label, class_list))
 # Run the recursive function
-find_best_feature_recursive(train_data, label, class_list)
+#find_best_feature_recursive(train_data, label, class_list)
+df=read_dataset(file_path)
+calculate_stroke_likelihood_by_age(df, 'age', 'stroke')
