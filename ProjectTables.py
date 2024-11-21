@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 
 def read_dataset(file_path):
     dataset = pd.read_csv(file_path)
-    
-    
     return dataset
 
 def preprocessing(dataset):
@@ -86,7 +84,6 @@ def calculate_stroke_likelihood(dataset, column_name, stroke_column):
     plt.show()
 
     return stroke_likelihood
-
 
 file_path = "healthcare-dataset-stroke-data 2.csv"
 train_data = preprocessing(read_dataset(file_path))
