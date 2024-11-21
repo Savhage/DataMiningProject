@@ -101,6 +101,6 @@ raw_data = read_dataset(file_path)
 # Preprocess the dataset
 processed_data = preprocessing(raw_data)
 
-
+processed_data=processed_data[processed_data["avg_glucose_level_quartile"]==3]
 # Calculate and plot stroke likelihood by column name
-calculate_stroke_likelihood(processed_data, 'bmi', 'stroke')
+calculate_stroke_likelihood(processed_data, 'age', 'stroke')
