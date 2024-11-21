@@ -51,113 +51,6 @@ def calculate_entropy(train_data, label, class_list):
             entropy -= probability * log2(probability)
     return entropy
 
-def calculate_filtered_entropy(feature_value_data, label, class_list):
-    total = len(feature_value_data)
-    entropy = 0
-    for cls in class_list:
-        count = len(feature_value_data[feature_value_data[label] == cls])
-        if count > 0:
-            probability = count / total
-            entropy -= probability * log2(probability)
-    return entropy
-
-def calculate_information_gain(train_data, feature_name, label, class_list):
-    total_entropy = calculate_entropy(train_data, label, class_list)
-    feature_values = train_data[feature_name].unique()
-    weighted_entropy = 0
-    total = len(train_data)
-    
-    for value in feature_values:
-        subset = train_data[train_data[feature_name] == value]
-        subset_entropy = calculate_filtered_entropy(subset, label, class_list)
-        weighted_entropy += (len(subset) / total) * subset_entropy
-    
-    information_gain = total_entropy - weighted_entropy
-    return information_gain
-
-def find_best_feature(train_data, label, class_list):
-    features = train_data.columns.drop(label)
-    info_gains = {feature: calculate_information_gain(train_data, feature, label, class_list) for feature in features}
-    best_feature = max(info_gains, key=info_gains.get)
-    return best_feature
-
-def find_best_feature_recursive(train_data, label, class_list, available_features=None, depth=0, min_info_gain=0.01):
-    
-    # Initialize available_features as all features except the label if not provided
-    if available_features is None:
-        available_features = [feature for feature in train_data.columns if feature != label]
-    
-    # Base case: Stop if no features are left or data is pure
-    if not available_features or len(train_data[label].unique()) == 1:
-        print(" " * depth + f"Leaf Node: {train_data[label].mode()[0]} (Pure class or no features left)")
-        return
-
-    # Calculate information gain for each available feature
-    info_gains = {feature: calculate_information_gain(train_data, feature, label, class_list) for feature in available_features}
-
-    # Find the best feature and its information gain
-    best_feature = max(info_gains, key=info_gains.get)
-    best_info_gain = info_gains[best_feature]
-
-    # Stop if the information gain is below the threshold
-    if best_info_gain < min_info_gain:
-        print(" " * depth + f"Leaf Node: {train_data[label].mode()[0]} (Insufficient information gain)")
-        return
-
-    # Display the best feature and its information gain
-    print(f"{' ' * depth}Best feature: {best_feature} (Information Gain: {best_info_gain:.4f})")
-
-    # Remove the best feature from the available features list
-    updated_available_features = [f for f in available_features if f != best_feature]
-
-    # Simulate splitting the dataset and make recursive calls
-    for value in train_data[best_feature].unique():
-        subset = train_data[train_data[best_feature] == value]
-        if subset.empty:
-            continue
-
-        # Display splitting condition
-        print(f"{' ' * (depth + 2)}Splitting on {best_feature} = {value}")
-
-        # Recursive call with the updated feature list
-        find_best_feature_recursive(subset, label, class_list, updated_available_features, depth + 4, min_info_gain)
-def calculate_stroke_likelihood_by_age(dataset, age_column, stroke_column):
-    """
-    Calculates and plots stroke likelihood by age quartiles.
-
-    Parameters:
-        dataset (pd.DataFrame): The dataset containing age and stroke data.
-        age_column (str): The column name for age.
-        stroke_column (str): The column name for stroke (1 = stroke, 0 = no stroke).
-    """
-    dataset=dataset[dataset['age']>1]
-    # Create age quartiles
-    dataset = dataset.sort_values(by=age_column)
-    dataset['age_quartile'] = pd.qcut(dataset[age_column], q=4, labels=[1, 2, 3, 4])
-
-    # Calculate stroke likelihood for each age quartile
-    stroke_likelihood = dataset.groupby('age_quartile')[stroke_column].mean()
-
-    # Print quartile ranges and stroke likelihood
-    quartile_ranges = pd.qcut(dataset[age_column], q=4).unique()
-    print("\nAge Quartiles:")
-    for i, q_range in enumerate(quartile_ranges, start=1):
-        print(f"Quartile {i}: {q_range}, Stroke Likelihood: {stroke_likelihood.iloc[i-1]:.4f}")
-
-    # Plot the results
-    print("\nPlotting Stroke Likelihood by Age Quartiles...")
-    plt.figure(figsize=(10, 6))
-    stroke_likelihood.plot(kind='bar', color='skyblue', edgecolor='black')
-    plt.title('Stroke Likelihood by Age Quartiles', fontsize=16)
-    plt.xlabel('Age Quartile', fontsize=14)
-    plt.ylabel('Stroke Likelihood', fontsize=14)
-    plt.xticks(ticks=range(len(quartile_ranges)), labels=[f"Q{i}" for i in range(1, 5)], fontsize=12, rotation=0)
-    plt.yticks(fontsize=12)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    plt.tight_layout()
-    plt.show()
-
-    return stroke_likelihood
 
 def calculate_stroke_likelihood(dataset, column_name, stroke_column):
     """
@@ -206,15 +99,10 @@ def calculate_stroke_likelihood(dataset, column_name, stroke_column):
 
 file_path = "healthcare-dataset-stroke-data 2.csv"
 train_data = preprocessing(read_dataset(file_path))
-train_data = preprocessing(read_dataset(file_path))
-train_data = preprocessing(read_dataset(file_path))
 
 label = "stroke"  # The label column
 class_list = train_data['stroke'].unique()
-
-# Generate the decision tree
 print(calculate_entropy(train_data,label, class_list))
-# Run the recursive function
-#find_best_feature_recursive(train_data, label, class_list)
+
 df=read_dataset(file_path)
-calculate_stroke_likelihood(df, 'bmi', 'stroke')
+calculate_stroke_likelihood(df, 'hypertension', 'stroke')
