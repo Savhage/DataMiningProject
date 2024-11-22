@@ -14,7 +14,7 @@ def categorize_bmi(bmi):
     elif bmi >= 30:
         return 'Obese'
     else:
-        return 'Unknown'  # Handle missing or invalid values
+        return 'Unknown'
 
 # Define Age categories
 def categorize_age(age):
@@ -29,8 +29,21 @@ def categorize_age(age):
     else:
         return 'Unknown'
 
+def group_glucose_level(glucose):
+    if glucose < 70:
+        return 'Low'
+    elif 70 <= glucose <= 140:
+        return 'Normal'
+    elif 141 <= glucose <= 199:
+        return 'Prediabetic'
+    else:
+        return 'Diabetic'
+
+
 data['BMI_Category'] = data['bmi'].apply(categorize_bmi)
 data['Age_Group'] = data['age'].apply(categorize_age)
+data['glucose_level_group'] = data['avg_glucose_level'].apply(group_glucose_level)
+
 
 
 # Function to count strokes (0 and 1) for a subset and grouped by another attribute
@@ -52,6 +65,10 @@ subset_col = 'gender'  # Subset column
 subset_value = 'Male'  # Focus on Male
 group_col = 'smoking_status'  # Attribute to group by
 target_col = 'stroke'  # Target column
+
+if group_col=='smoking_status':
+    data = data[data['smoking_status'] != 'Unknown']
+
 
 # Calculate and print stroke counts
 stroke_counts = count_strokes_by_attribute(data, subset_col, subset_value, group_col, target_col)

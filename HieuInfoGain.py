@@ -5,6 +5,48 @@ import numpy as np
 data = pd.read_csv('healthcare-dataset-stroke-data 2.csv')
 
 
+# Define BMI categories
+def categorize_bmi(bmi):
+    if bmi < 18.5:
+        return 'Underweight'
+    elif 18.5 <= bmi <= 24.9:
+        return 'Normal weight'
+    elif 25 <= bmi <= 29.9:
+        return 'Overweight'
+    elif bmi >= 30:
+        return 'Obese'
+    else:
+        return 'Unknown'
+
+# Define Age categories
+def categorize_age(age):
+    if age <= 18:
+        return 'Child/Teen'
+    elif 19 <= age <= 35:
+        return 'Young Adult'
+    elif 36 <= age <= 55:
+        return 'Middle-aged Adult'
+    elif age >= 56:
+        return 'Senior'
+    else:
+        return 'Unknown'
+
+def group_glucose_level(glucose):
+    if glucose < 70:
+        return 'Low'
+    elif 70 <= glucose <= 140:
+        return 'Normal'
+    elif 141 <= glucose <= 199:
+        return 'Prediabetic'
+    else:
+        return 'Diabetic'
+
+
+data['BMI_Category'] = data['bmi'].apply(categorize_bmi)
+data['Age_Group'] = data['age'].apply(categorize_age)
+data['glucose_level_group'] = data['avg_glucose_level'].apply(group_glucose_level)
+
+
 # Function to calculate entropy
 def calculate_entropy(data, target_col):
     target_counts = data[target_col].value_counts()
